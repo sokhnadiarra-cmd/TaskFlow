@@ -63,3 +63,5 @@ export class ProjetsService {
     );
   }
 }
+
+export { computed, inject };

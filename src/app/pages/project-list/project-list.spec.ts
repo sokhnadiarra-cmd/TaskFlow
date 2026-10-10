@@ -1,21 +1,22 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { appConfig } from '../../app.config';
 import { ProjectList } from './project-list';
 
 describe('ProjectList', () => {
-  let component: ProjectList;
   let fixture: ComponentFixture<ProjectList>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ProjectList],
+      providers: [...appConfig.providers, provideHttpClientTesting()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ProjectList);
-    component = fixture.componentInstance;
-    await fixture.whenStable();
+    fixture.detectChanges();
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
+    expect(fixture.componentInstance).toBeTruthy();
   });
 });
