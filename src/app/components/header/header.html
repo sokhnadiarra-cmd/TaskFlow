@@ -1,0 +1,10 @@
+<header class="header">
+  <span class="logo">{{ appName}}</span>
+  <nav>
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact : true}">Accueil</a>
+    <a routerLink="/projects" routerLinkActive="active">Projects</a>
+  </nav>
+  <span class="total-tasks">{{ totalTasksCount() }} tâche(s) au total</span>
+  <span class="total-tasks">Config racine - taille de page: {{ pageSize}}</span>
+  <mat-slide-toggle>Toggle me!</mat-slide-toggle>
+</header>

@@ -1,0 +1,42 @@
+<div class="statistics-page">
+  <header>
+    <h1>Tableau de bord</h1>
+    <p>Vue globale de vos projets et de vos tâches</p>
+  </header>
+
+  <div class="stats-grid">
+    <app-stat-card title="Projets" [value]="totalProjects()" icon="📁"></app-stat-card>
+    <app-stat-card title="Tâches" [value]="totalTasks()" icon="📋"></app-stat-card>
+    <app-stat-card title="Terminées" [value]="doneTasks()" icon="✅"></app-stat-card>
+    <app-stat-card title="En retard" [value]="overdueTasks()" icon="🚨"></app-stat-card>
+  </div>
+
+  <section class="block">
+    <h2>Répartition des tâches</h2>
+    <div class="bar">
+      <span class="seg todo" [style.width.%]="todoPercent()"></span>
+      <span class="seg doing" [style.width.%]="inProgressPercent()"></span>
+      <span class="seg done" [style.width.%]="donePercent()"></span>
+    </div>
+    <ul class="legend">
+      <li><i class="dot todo"></i>À faire ({{ todoTasks() }})</li>
+      <li><i class="dot doing"></i>En cours ({{ inProgressTasks() }})</li>
+      <li><i class="dot done"></i>Terminées ({{ doneTasks() }})</li>
+    </ul>
+  </section>
+
+  <section class="block">
+    <h2>Avancement par projet</h2>
+    @for (p of projectProgress(); track p.id) {
+      <div class="row">
+        <div class="row-head">
+          <span>{{ p.name }}</span>
+          <span>{{ p.percent }} % ({{ p.done }}/{{ p.total }})</span>
+        </div>
+        <div class="track"><div class="fill" [style.width.%]="p.percent"></div></div>
+      </div>
+    } @empty {
+      <p>Aucun projet.</p>
+    }
+  </section>
+</div>

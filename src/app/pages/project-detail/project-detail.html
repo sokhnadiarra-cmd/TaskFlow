@@ -1,0 +1,165 @@
+@if (project(); as p) {
+  <h2>{{ p.name }}</h2>
+  <p>{{ p.description }}</p>
+  <p>Statut : {{ p.status }}</p>
+
+  <button mat-flat-button type="button" (click)="showform.set(!showform())">
+    {{ showform() ? 'Fermer' : '+ Ajouter une tâche' }}
+  </button>
+
+  @if (showform()) {
+    <h3>Nouvelle tâche</h3>
+    <form [formGroup]="taskForm" (ngSubmit)="addTask()" class="task-form">
+      <mat-form-field appearance="outline">
+        <mat-label>Titre</mat-label>
+        <input matInput formControlName="title" />
+        @if (taskForm.controls.title.invalid && taskForm.controls.title.touched) {
+          <mat-error>Titre requis (3 caractères minimum)</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Description</mat-label>
+        <textarea matInput formControlName="description"></textarea>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Assigner à</mat-label>
+        <mat-select formControlName="assigneeId">
+          <mat-option [value]="null">Personne</mat-option>
+          @for (m of members(); track m.id) {
+            <mat-option [value]="m.id">{{ m.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Deadline</mat-label>
+        <input matInput type="date" formControlName="deadline" />
+      </mat-form-field>
+
+      <button mat-flat-button type="submit">Ajouter la tâche</button>
+
+      @if (addError()) {
+        <p class="error">{{ addError() }}</p>
+      }
+    </form>
+  }
+
+  <h3>Tâches ({{ filteredTasks().length }})</h3>
+
+  <div class="filters">
+    <label>
+      Membre
+      <select (change)="setMemberFilter($any($event.target).value)">
+        <option value="" [selected]="memberFilter() === null">Tous</option>
+        @for (m of members(); track m.id) {
+          <option [value]="m.id" [selected]="memberFilter() === m.id">{{ m.name }}</option>
+        }
+      </select>
+    </label>
+
+    <label>
+      Statut
+      <select (change)="statusFilter.set($any($event.target).value)">
+        <option value="" [selected]="statusFilter() === ''">Tous</option>
+        <option value="a_faire" [selected]="statusFilter() === 'a_faire'">À faire</option>
+        <option value="en_cours" [selected]="statusFilter() === 'en_cours'">En cours</option>
+        <option value="termine" [selected]="statusFilter() === 'termine'">Terminé</option>
+      </select>
+    </label>
+
+    <label>
+      Deadline du
+      <input type="date" [value]="dateFrom()" (change)="dateFrom.set($any($event.target).value)" />
+    </label>
+
+    <label>
+      au
+      <input type="date" [value]="dateTo()" (change)="dateTo.set($any($event.target).value)" />
+    </label>
+
+    <button type="button" (click)="resetFilters()">Réinitialiser</button>
+  </div>
+
+  @for (t of filteredTasks(); track t.id) {
+    <div class="task">
+      @if (editingId() === t.id) {
+        <form [formGroup]="editForm" (ngSubmit)="saveEdit(t)" class="task-form">
+          <mat-form-field appearance="outline">
+            <mat-label>Titre</mat-label>
+            <input matInput formControlName="title" />
+            @if (editForm.controls.title.invalid && editForm.controls.title.touched) {
+              <mat-error>Titre requis (3 caractères minimum)</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Description</mat-label>
+            <textarea matInput formControlName="description"></textarea>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Assigner à</mat-label>
+            <mat-select formControlName="assigneeId">
+              <mat-option [value]="null">Personne</mat-option>
+              @for (m of members(); track m.id) {
+                <mat-option [value]="m.id">{{ m.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Deadline</mat-label>
+            <input matInput type="date" formControlName="deadline" />
+          </mat-form-field>
+
+          <div class="actions">
+            <button mat-flat-button type="submit">Enregistrer</button>
+            <button type="button" (click)="cancelEdit()">Annuler</button>
+          </div>
+        </form>
+      } @else {
+        <div class="task-head">
+          <strong>{{ t.title }}</strong>
+          <span class="actions">
+            <button type="button" (click)="startEdit(t)">Modifier</button>
+            <button type="button" class="danger" (click)="deleteTask(t)">Supprimer</button>
+          </span>
+        </div>
+
+        @if (t.description) {
+          <p>{{ t.description }}</p>
+        }
+
+        <select (change)="changeStatus(t, $any($event.target).value)">
+          <option value="actif" [selected]="t.status === 'actif'">À faire</option>
+          <option value="en_pause" [selected]="t.status === 'en_pause'">En cours</option>
+          <option value="terminé" [selected]="t.status === 'terminé'">Terminé</option>
+        </select>
+
+        <span>Assignée à : {{ memberName(t.assigneeId) }}</span>
+        @if (t.deadline) {
+          <span>Deadline : {{ t.deadline | date: 'dd/MM/yyyy' }}</span>
+        }
+      }
+
+      <div class="comments">
+        @for (c of t.comments; track c.id) {
+          <p>
+            <strong>{{ c.authorName }}</strong>
+            ({{ c.createdAt | date: 'dd/MM HH:mm' }}) : {{ c.text }}
+          </p>
+        }
+        <input #commentInput placeholder="Ajouter un commentaire" />
+        <button type="button" (click)="addComment(t, commentInput)">Envoyer</button>
+      </div>
+    </div>
+  } @empty {
+    <p>Aucune tâche pour ce projet.</p>
+  }
+} @else if (notFound()) {
+  <p>Ce projet n'existe pas</p>
+} @else {
+  <p>Chargement...</p>
+}

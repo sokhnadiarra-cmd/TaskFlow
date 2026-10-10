@@ -1,0 +1,108 @@
+{
+  "projects": [
+    {
+      "id": 1,
+      "name": "Refonte Facturation",
+      "description": "Migration vers la nouvelle API de paiement",
+      "status": "actif",
+      "tasksCount": 13
+    },
+    {
+      "id": 2,
+      "name": "App Mobile RH",
+      "description": "Application de gestion des congés",
+      "status": "en_pause",
+      "tasksCount": 15
+    },
+    {
+      "id": 3,
+      "name": "Portail Client",
+      "description": "Espace self-service pour les clients",
+      "status": "terminé",
+      "tasksCount": 10
+    },
+    {
+      "name": "Test",
+      "description": "test_1",
+      "status": "actif",
+      "tasksCount": 20,
+      "id": 4
+    },
+    {
+      "name": "Test2",
+      "description": "test",
+      "status": "en_pause",
+      "tasksCount": 15,
+      "id": 5
+    }
+  ],
+  "users": [
+    {
+      "id": 1,
+      "name": "Moustapha Diouf",
+      "email": "moustapha@taskflow.dev",
+      "password": "moustapha1810",
+      "resetToken": null,
+      "resetExpiresAt": null
+    },
+    {
+      "id": 2,
+      "name": "Mame Aby",
+      "email": "aby@taskflow.dev",
+      "password": "aby123"
+    },
+    {
+      "id": 3,
+      "name": "Jean Diego",
+      "email": "jean@taskflow.dev",
+      "password": "jb123"
+    },
+    {
+      "name": "Ndeye Gnima",
+      "email": "gnima@taskflow.dev",
+      "password": "dormir",
+      "id": 4
+    },
+    {
+      "name": "Babacar ",
+      "email": "baba@taskflow.dev",
+      "password": "baba95",
+      "id": 5
+    }
+  ],
+  "tasks": [
+    {
+      "projectId": 5,
+      "title": "test api",
+      "description": "test avec Swagger",
+      "status": "en_pause",
+      "assigneeId": 2,
+      "deadline": "2026-12-15",
+      "createdAt": "2026-10-07",
+      "comments": [],
+      "id": 2
+    },
+    {
+      "projectId": 4,
+      "title": "test unitaire",
+      "description": "test",
+      "status": "actif",
+      "assigneeId": 3,
+      "deadline": "2026-10-25",
+      "createdAt": "2026-10-08",
+      "comments": [],
+      "id": 3
+    },
+    {
+      "projectId": 1,
+      "title": "Gestion des paiements",
+      "description": "Paiement par moratoire",
+      "status": "actif",
+      "assigneeId": 1,
+      "deadline": "2026-10-31",
+      "createdAt": "2026-10-09",
+      "comments": [],
+      "id": 4
+    }
+  ]
+}
