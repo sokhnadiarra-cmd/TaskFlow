@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { Project } from '../../shared/models/project.models';
 import { Panel } from '../../components/panel/panel';
 import { ProjectCard } from '../../components/project-card/project-card';
@@ -16,11 +16,21 @@ import { Router} from '@angular/router';
     { provide: APP_CONFIG, useValue: { ...defaultAppConfig, defaultPageSize: 25} }
   ]
 })
-export class ProjectList {
+export class ProjectList implements OnInit {
+  ngOnInit(): void {
+    this.projectService.loadTasks();
+  }
   private projectService = inject(ProjetsService);
   private config = inject(APP_CONFIG);
   protected readonly projects = this.projectService.projects;
   protected readonly activeProjectsCount = this.projectService.activeProjectsCount;
+  protected readonly activeProjects = this.projectService.activeProjects;
+  protected readonly archivedProjects = this.projectService.archivedProjects;
+  protected readonly showArchived = signal(false);
+
+  toggleArchived(): void {
+    this.showArchived.update(v => !v);
+  }
   private router = inject(Router);
 
   /**

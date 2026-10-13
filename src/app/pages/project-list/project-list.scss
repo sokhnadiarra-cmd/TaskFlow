@@ -14,3 +14,12 @@
   padding: 2rem;
   color: var(--color-ink-muted);
 }
+
+.btn-toggle-archived {
+  margin: 24px 0 12px;
+  padding: 8px 16px;
+  border: 1px solid #999;
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+}

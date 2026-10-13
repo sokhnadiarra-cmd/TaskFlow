@@ -30,4 +30,18 @@ protected readonly taskCount = computed(() =>
 protected readonly doneCount = computed(() =>
   this.projetsService.doneCountOf(this.project().id),
 ); 
+// Vrai si le projet a des tâches et qu'elles sont toutes terminées (règle A)
+  protected readonly canArchive = computed(() =>
+    this.projetsService.canArchive(this.project().id),
+  );
+
+  onArchive(event: Event): void {
+    event.stopPropagation(); // évite de déclencher onSelect() sur la carte
+    this.projetsService.archiveProject(this.project().id).subscribe();
+  }
+
+  onUnarchive(event: Event): void {
+    event.stopPropagation();
+    this.projetsService.unarchiveProject(this.project().id).subscribe();
+  }
 }

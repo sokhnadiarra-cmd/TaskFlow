@@ -20,8 +20,19 @@ export class ProjetsService {
   readonly projects = this._projects.asReadonly();
   readonly loaded = signal(false);
 
+  // Projets visibles dans la liste principale
+  readonly activeProjects = computed(
+    () => this._projects().filter(p => !p.archived)
+  );
+
+  // Projets archivés
+  readonly archivedProjects = computed(
+    () => this._projects().filter(p => p.archived)
+  );
+
+  // Les projets archivés ne comptent plus comme actifs
   readonly activeProjectsCount = computed(
-    () => this._projects().filter(p => p.status === 'actif').length
+    () => this._projects().filter(p => p.status === 'actif' && !p.archived).length
   );
 
   // Vrai nombre de tâches, lu depuis /tasks
@@ -53,6 +64,12 @@ export class ProjetsService {
     ).length;
   }
 
+  // Règle  : archivable seulement si au moins une tâche et toutes terminées
+  canArchive(projectId: number | string): boolean {
+    const total = this.tasksCountOf(projectId);
+    return total > 0 && this.doneCountOf(projectId) === total;
+  }
+
   getById(id: number | string): Project | undefined {
     return this._projects().find(p => String(p.id) === String(id));
   }
@@ -60,6 +77,24 @@ export class ProjetsService {
   addProject(input: Omit<Project, 'id' | 'tasksCount'>): Observable<Project> {
     return this.http.post<Project>(this.apiUrl, { ...input, tasksCount: 0 }).pipe(
       tap(project => this._projects.update(projects => [...projects, project]))
+    );
+  }
+
+  archiveProject(id: number | string): Observable<Project> {
+    return this.setArchived(id, true);
+  }
+
+  unarchiveProject(id: number | string): Observable<Project> {
+    return this.setArchived(id, false);
+  }
+
+  private setArchived(id: number | string, archived: boolean): Observable<Project> {
+    return this.http.patch<Project>(`${this.apiUrl}/${id}`, { archived }).pipe(
+      tap(updated =>
+        this._projects.update(projects =>
+          projects.map(p => (String(p.id) === String(id) ? updated : p))
+        )
+      )
     );
   }
 }

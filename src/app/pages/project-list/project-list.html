@@ -1,15 +1,31 @@
-<h1>Projects ({{ projects().length }})</h1>
+<h1>Projects ({{ activeProjects().length }})</h1>
 <a routerLink="/projects/new">Nouveau projet</a>
 <p>{{ activeProjectsCount() }} projet(s) actif(s)</p>
 
-@if (projects().length === 0){
+@if (activeProjects().length === 0) {
   <p class="empty-state">Aucun projet pour l'instant</p>
 } @else {
   <div class="project-grid">
-    @for (project of projects(); track project.id){
+    @for (project of activeProjects(); track project.id) {
       <a [routerLink]="['/projects', project.id]">
-        <app-project-card [project]="project" (selected)="onProjectSelected($event)"/>
+        <app-project-card [project]="project" (selected)="onProjectSelected($event)" />
       </a>
     }
   </div>
+}
+
+@if (archivedProjects().length > 0) {
+  <button type="button" class="btn-toggle-archived" (click)="toggleArchived()">
+    {{ showArchived() ? 'Masquer' : 'Voir' }} les projets archivés ({{ archivedProjects().length }})
+  </button>
+
+  @if (showArchived()) {
+    <div class="project-grid">
+      @for (project of archivedProjects(); track project.id) {
+        <a [routerLink]="['/projects', project.id]">
+          <app-project-card [project]="project" (selected)="onProjectSelected($event)" />
+        </a>
+      }
+    </div>
+  }
 }

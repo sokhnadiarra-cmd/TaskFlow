@@ -4,4 +4,5 @@ export interface Project {
   description: string;
   status: 'actif' | 'en_pause' | 'terminé';
   tasksCount: number;
+  archived?: boolean;
 }
