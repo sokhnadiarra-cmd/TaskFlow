@@ -50,7 +50,9 @@ export class ProjectDetail {
       switchMap((id) =>
         this.projectService.getById(id).pipe(
           map((project): DetailState => ({ loading: false, notFound: false, project })),
-          catchError(() => of<DetailState>({ loading: false, notFound: true, project: null })),
+          catchError(() =>
+            of<DetailState>({ loading: false, notFound: true, project: null }),
+          ),
           startWith({ loading: true, notFound: false, project: null }),
         ),
       ),
@@ -91,7 +93,7 @@ export class ProjectDetail {
       .sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
   });
 
-  /** Résout l'assigné pour chaque tâche, prêt à passer au TaskCard. */
+  /** Résout l'assigné pour chaque tâche. */
   protected readonly assigneesByTask = computed(() => {
     const map = new Map<number, ReturnType<UsersService['getById']>>();
     for (const task of this.tasks()) {
@@ -107,17 +109,49 @@ export class ProjectDetail {
     });
   }
 
-  /** Handler du (edit) émis par TaskCard. */
   protected onTaskEdit(task: Task): void {
     this.router.navigate(['/projects', task.projectId, 'tasks', task.id, 'edit']);
   }
+
   protected onTaskOpen(task: Task): void {
-  this.router.navigate(['/projects', task.projectId, 'tasks', task.id]);
-}
-protected onTaskView(task: Task): void {
-  this.router.navigate(['/projects', task.projectId, 'tasks', task.id]);
-}
-  /** Handler du (remove) émis par TaskCard : confirmation puis suppression. */
+    this.router.navigate(['/projects', task.projectId, 'tasks', task.id]);
+  }
+
+  protected onProjectEdit(project: Project): void {
+    this.router.navigate(['/projects', project.id, 'edit']);
+  }
+
+  /** Handler du bouton Archiver / Désarchiver. */
+  protected onProjectArchiveToggle(project: Project): void {
+    const isArchived = project.archived === true;
+
+    const ref = this.dialog.open(ConfirmDialog, {
+      width: '440px',
+      data: {
+        title: isArchived ? 'Désarchiver le projet' : 'Archiver le projet',
+        message: isArchived
+          ? `Veux-tu vraiment restaurer « ${project.name} » ? Il réapparaîtra dans la liste principale.`
+          : `Veux-tu archiver « ${project.name} » ? Il sera masqué de la liste mais ses tâches seront conservées.`,
+        confirmLabel: isArchived ? 'Désarchiver' : 'Archiver',
+        cancelLabel: 'Annuler',
+      },
+    });
+
+    ref.afterClosed().subscribe((confirmed) => {
+      if (!confirmed) return;
+
+      const action$ = isArchived
+        ? this.projectService.unarchiveProject(project.id)
+        : this.projectService.archiveProject(project.id);
+
+      action$.subscribe({
+        next: () => this.router.navigate(['/projects']),
+        error: () => console.error('Échec archivage/désarchivage', project.id),
+      });
+    });
+  }
+
+  /** Handler du (remove) émis par TaskCard. */
   protected onTaskDelete(task: Task): void {
     const ref = this.dialog.open(ConfirmDialog, {
       width: '400px',

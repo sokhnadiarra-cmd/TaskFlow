@@ -1,9 +1,11 @@
-<article class="task-card" (click)="onOpen()">
+<article
+  class="task-card"
+  tabindex="0"
+  (click)="onOpen()"
+  (keydown.enter)="onOpen()"
+>
   <header class="task-card__header">
-  v<h3 class="task-card__title" (click)="onView()" role="button" tabindex="0">
-  {{ task().title }}
-</h3>
-
+    <h3 class="task-card__title">{{ task().title }}</h3>
     <span [class]="'task-card__priority task-card__priority--' + task().priority">
       {{ priorityLabels[task().priority] }}
     </span>
@@ -11,15 +13,15 @@
 
   <p class="task-card__description">{{ task().description }}</p>
 
- @if (deadlineLabel(); as label) {
-  <p [class]="'task-card__deadline task-card__deadline--' + deadlineState()">
-    📅 Échéance : {{ label }}
-    @switch (deadlineState()) {
-      @case ('overdue') { <span class="task-card__deadline-tag">En retard</span> }
-      @case ('soon')    { <span class="task-card__deadline-tag">Bientôt</span> }
-    }
-  </p>
-}
+  @if (deadlineLabel(); as label) {
+    <p [class]="'task-card__deadline task-card__deadline--' + deadlineState()">
+      📅 Échéance : {{ label }}
+      @switch (deadlineState()) {
+        @case ('overdue') { <span class="task-card__deadline-tag">En retard</span> }
+        @case ('soon')    { <span class="task-card__deadline-tag">Bientôt</span> }
+      }
+    </p>
+  }
 
   <footer class="task-card__footer">
     <span [class]="'task-card__status task-card__status--' + task().status">
@@ -33,7 +35,11 @@
     }
   </footer>
 
-  <div class="task-card__actions" (click)="$event.stopPropagation()">
+  <div
+    class="task-card__actions"
+    (click)="$event.stopPropagation()"
+    (keydown.enter)="$event.stopPropagation()"
+  >
     <button mat-stroked-button type="button" (click)="onEdit()">Modifier</button>
     <button mat-stroked-button color="warn" type="button" (click)="onDelete()">Supprimer</button>
   </div>

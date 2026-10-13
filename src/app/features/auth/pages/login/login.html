@@ -6,9 +6,15 @@
       <p class="login-success">Inscription réussie 🎉 Connecte-toi maintenant.</p>
     }
 
+    @if (passwordReset()) {
+      <p class="login-success">
+        Mot de passe réinitialisé ✅ Tu peux te connecter avec ton nouveau mot de passe.
+      </p>
+    }
+
     <mat-form-field appearance="outline">
       <mat-label>Email</mat-label>
-      <input matInput formControlName="email" type="email" />
+      <input matInput formControlName="email" type="email" autocomplete="email" />
       @if (form.controls.email.hasError('required') && form.controls.email.touched) {
         <mat-hint>L'email est obligatoire</mat-hint>
       }
@@ -19,11 +25,15 @@
 
     <mat-form-field appearance="outline">
       <mat-label>Mot de passe</mat-label>
-      <input matInput type="password" formControlName="password" />
+      <input matInput type="password" formControlName="password" autocomplete="current-password" />
       @if (form.controls.password.hasError('required') && form.controls.password.touched) {
         <mat-hint>Le mot de passe est obligatoire</mat-hint>
       }
     </mat-form-field>
+
+    <div class="forgot-link">
+      <a routerLink="/forgot-password">Mot de passe oublié ?</a>
+    </div>
 
     @if (loginFailed()) {
       <p class="login-error">Email ou mot de passe incorrect.</p>
@@ -33,10 +43,9 @@
       Se connecter
     </button>
 
-   <p class="login-footer">
-  Pas encore de compte ?
-  <a routerLink="/register">Créer un compte</a>
-</p>
+    <p class="login-footer">
+      Pas encore de compte ?
+      <a routerLink="/register">Créer un compte</a>
+    </p>
   </form>
-
 </div>

@@ -1,6 +1,6 @@
 import { Component, computed, input, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { DatePipe } from '@angular/common';
+
 
 import {
   DEADLINE_SOON_DAYS,
@@ -12,7 +12,7 @@ import {
 import { User } from '../../../../core/auth/user.model';
 
 @Component({
-  imports: [MatButtonModule, DatePipe],
+  imports: [MatButtonModule],
   selector: 'app-task-card',
   styleUrl: './task-card.scss',
   templateUrl: './task-card.html',

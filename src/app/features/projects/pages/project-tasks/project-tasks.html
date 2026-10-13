@@ -1,39 +1,54 @@
-<h1>Kanban — {{ project()?.name ?? 'Projet' }}</h1>
-<p class="subtitle">{{ totalFiltered() }} tâche(s) affichée(s)</p>
+<header class="kanban-page__header">
+  <div>
+    <h1>Kanban — {{ project()?.name ?? 'Projet' }}</h1>
+    <p class="subtitle">{{ totalFiltered() }} tâche(s) affichée(s)</p>
+  </div>
 
-<a mat-stroked-button [routerLink]="['/projects', projectId()]">← Retour au projet</a>
-<a mat-flat-button color="primary" [routerLink]="['/projects', projectId(), 'tasks', 'new']">
-  + Nouvelle tâche
-</a>
+  <div class="kanban-page__actions">
+    <a mat-stroked-button [routerLink]="['/projects', projectId()]">← Retour au projet</a>
+    <a mat-flat-button color="primary" [routerLink]="['/projects', projectId(), 'tasks', 'new']">
+      + Nouvelle tâche
+    </a>
+  </div>
+</header>
 
 <app-task-filters [value]="filters()" (valueChange)="onFiltersChange($event)" />
 
 <div class="kanban">
   @for (column of columns(); track column.status) {
-    <section class="kanban__column">
+    <section [class]="'kanban__column kanban__column--' + column.status">
       <header class="kanban__header">
         <h2>{{ column.label }}</h2>
         <span class="kanban__count">{{ column.tasks.length }}</span>
       </header>
 
-      <!-- Zone de dépôt -->
       <div
-  class="kanban__dropzone"
-  cdkDropList
-  [id]="'col-' + column.status"
-  [cdkDropListData]="column.tasks"
-  [cdkDropListConnectedTo]="connectedLists()"
-  (cdkDropListDropped)="onDrop($event, column.status)"
->
+        class="kanban__dropzone"
+        cdkDropList
+        [id]="'col-' + column.status"
+        [cdkDropListData]="column.tasks"
+        [cdkDropListConnectedTo]="connectedLists()"
+        (cdkDropListDropped)="onDrop($event, column.status)"
+      >
         @for (task of column.tasks; track task.id) {
           <div class="kanban__item" cdkDrag>
+            <button
+              type="button"
+              class="kanban__handle"
+              cdkDragHandle
+              aria-label="Déplacer la tâche"
+            >
+              ⠿
+            </button>
+
             <app-task-card
-  [task]="task"
-  [assignee]="assigneesByTask().get(task.id) ?? null"
-  (view)="onTaskView($event)"
-  (edit)="onTaskEdit($event)"
-  (remove)="onTaskDelete($event)"
-/>
+              class="kanban__card"
+              [task]="task"
+              [assignee]="assigneesByTask().get(task.id) ?? null"
+              (view)="onTaskView($event)"
+              (edit)="onTaskEdit($event)"
+              (remove)="onTaskDelete($event)"
+            />
           </div>
         }
 

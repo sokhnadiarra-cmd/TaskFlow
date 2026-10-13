@@ -1,18 +1,82 @@
-<h1>Projects ({{ projects().length }})</h1>
-<a mat-flat-button color="primary" routerLink="/projects/new">Nouveau projet</a>
-<p>{{ activeProjectsCount() }} projet(s) actif(s)</p>
-<p class="config-debug">Config locale à cette page - taille de page: {{ pageSize }}</p>
+<header class="project-list__header">
+  <div class="project-list__intro">
+    <h1>
+      {{ showArchived() ? 'Projets archivés' : 'Projets' }}
+      <span class="project-list__badge">{{ projects().length }}</span>
+    </h1>
+    @if (showArchived()) {
+      <p class="project-list__subtitle">Ces projets sont masqués de la liste principale.</p>
+    } @else {
+      <p class="project-list__subtitle">{{ activeProjectsCount() }} projet(s) actif(s)</p>
+    }
+  </div>
 
-@if (loading()){
-  <p class="empty-state">Chargement des projets .....</p>
-} @else if (projects().length === 0){
-  <p class="empty-state">Aucun projet pour l'instant</p>
+  <div class="project-list__actions">
+    @if (showArchived() || archivedCount() > 0) {
+      <button mat-stroked-button type="button" (click)="toggleArchived()">
+        {{ showArchived() ? '← Voir les actifs' : '📦 Voir les archivés (' + archivedCount() + ')' }}
+      </button>
+    }
+    <a mat-flat-button color="primary" routerLink="/projects/new">+ Nouveau projet</a>
+  </div>
+</header>
+
+@if (loading()) {
+  <p class="empty-state">Chargement des projets...</p>
+} @else if (projects().length === 0) {
+  <div class="empty-card">
+    <h2>
+      {{ showArchived() ? 'Aucun projet archivé' : "Aucun projet pour l'instant" }}
+    </h2>
+    <p>
+      {{
+        showArchived()
+          ? "Les projets archivés apparaîtront ici."
+          : 'Crée ton premier projet pour commencer à organiser tes tâches.'
+      }}
+    </p>
+    @if (!showArchived()) {
+      <a mat-flat-button color="primary" routerLink="/projects/new">Créer un projet</a>
+    }
+  </div>
 } @else {
-  <div class="project-grid">
-    @for (project of projects(); track project.id){
-      <a [routerLink]="['/projects', project.id]">
-        <app-project-card [project]="project" (selected)="onProjectSelected($event)"/>
-      </a>
+  <!-- Filtre par statut -->
+  <div class="status-filter" role="group" aria-label="Filtrer par statut">
+    @for (option of filterOptions(); track option.value) {
+      <button
+        type="button"
+        [class]="'chip chip--' + option.value"
+        [class.chip--selected]="statusFilter() === option.value"
+        [attr.aria-pressed]="statusFilter() === option.value"
+        (click)="setFilter(option.value)"
+      >
+        {{ option.label }}
+        <span class="chip__count">{{ option.count }}</span>
+      </button>
+    }
+  </div>
+
+  <!-- Kanban -->
+  <div class="kanban" [class.kanban--single]="columns().length === 1">
+    @for (column of columns(); track column.status) {
+      <section [class]="'kanban__column kanban__column--' + column.status">
+        <header class="kanban__header">
+          <h2>{{ column.label }}</h2>
+          <span class="kanban__count">{{ column.projects.length }}</span>
+        </header>
+
+        <div class="kanban__list">
+          @for (project of column.projects; track project.id) {
+            <a class="kanban__link" [routerLink]="['/projects', project.id]">
+              <app-project-card [project]="project" (selected)="onProjectSelected($event)" />
+            </a>
+          } @empty {
+            <p class="kanban__empty">Aucun projet</p>
+          }
+        </div>
+      </section>
     }
   </div>
 }
+
+<p class="config-debug">Config locale à cette page · taille de page : {{ pageSize }}</p>

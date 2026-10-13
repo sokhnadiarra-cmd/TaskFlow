@@ -25,7 +25,7 @@ import { SlicePipe } from '@angular/common';
     MatInputModule,
     MatFormFieldModule,
     ReactiveFormsModule,
-    SlicePipe
+    SlicePipe,
   ],
   selector: 'app-task-detail',
   styleUrl: './task-detail.scss',
@@ -40,12 +40,13 @@ export class TaskDetail {
   private router = inject(Router);
   private fb = inject(FormBuilder);
 
-  private readonly projectId = toSignal(
+  // ⬇️ protected (et non private) car utilisés dans le template
+  protected readonly projectId = toSignal(
     this.route.paramMap.pipe(map((p) => Number(p.get('id')!))),
     { requireSync: true },
   );
 
-  private readonly taskId = toSignal(
+  protected readonly taskId = toSignal(
     this.route.paramMap.pipe(map((p) => Number(p.get('taskId')!))),
     { requireSync: true },
   );

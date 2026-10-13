@@ -1,19 +1,91 @@
 :host {
   display: block;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
 }
 
-h1 {
-  margin-bottom: 0.25rem;
-}
-
-.status {
+.back-link {
   display: inline-block;
-  font-size: 0.8rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  color: var(--color-ink-muted);
+  text-decoration: none;
+  transition: color 0.15s ease;
+
+  &:hover {
+    color: var(--color-primary);
+  }
+}
+
+/* ---------- En-tête du projet ---------- */
+.project-detail__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  padding: 1.75rem;
+  margin-bottom: 2rem;
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--color-ink-muted) 25%, transparent);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--color-primary) 8%, transparent),
+    transparent 60%
+  );
+  box-shadow: 0 2px 12px rgb(0 0 0 / 0.05);
+}
+
+.project-detail__info {
+  flex: 1 1 320px;
+  min-width: 0;
+
+  h1 {
+    margin: 0.5rem 0 0.5rem;
+    font-size: 1.9rem;
+    line-height: 1.2;
+  }
+}
+
+.project-detail__description {
+  margin: 0;
+  max-width: 60ch;
+  line-height: 1.6;
+  color: var(--color-ink-muted);
+}
+
+.project-detail__count {
+  margin: 1rem 0 0;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-ink-muted);
+}
+
+.project-detail__actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+/* ---------- Badge de statut ---------- */
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
   font-weight: 600;
-  padding: 0.25rem 0.7rem;
+  padding: 0.25rem 0.75rem;
   border-radius: 999px;
   text-transform: capitalize;
-  margin-bottom: 0.75rem;
+
+  &::before {
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: currentColor;
+  }
 
   &--actif {
     color: var(--color-status-actif);
@@ -31,25 +103,155 @@ h1 {
   }
 }
 
-.empty-state {
-  color: var(--color-ink-muted);
-}
-
-.project-navigation {
+/* ---------- Section tâches ---------- */
+.tasks-section__header {
   display: flex;
   justify-content: space-between;
-  margin-top: 2rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--color-ink-muted);
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
 
-  .nav-btn{
-    text-decoration: none;
-    padding: 0.5rem 1rem;
-    border: 1px solid var(--color-primary);
-    border-radius: 6px;
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0;
+    font-size: 1.3rem;
   }
 }
+
+.tasks-section__badge {
+  font-size: 0.8rem;
+  font-weight: 600;
+  min-width: 1.6rem;
+  padding: 0.15rem 0.5rem;
+  text-align: center;
+  border-radius: 999px;
+  color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+}
+
 .tasks-section__actions {
   display: flex;
   gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.task-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+/* ---------- États vides ---------- */
+.empty-state {
+  color: var(--color-ink-muted);
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.empty-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2.5rem 1rem;
+  text-align: center;
+  color: var(--color-ink-muted);
+  border: 2px dashed color-mix(in srgb, var(--color-ink-muted) 35%, transparent);
+  border-radius: 16px;
+
+  h2,
+  p {
+    margin: 0;
+  }
+}
+
+/* ---------- Navigation entre projets ---------- */
+.project-navigation {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid color-mix(in srgb, var(--color-ink-muted) 25%, transparent);
+}
+
+.nav-btn {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  max-width: 48%;
+  padding: 0.75rem 1.1rem;
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid color-mix(in srgb, var(--color-primary) 40%, transparent);
+  border-radius: 12px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    border-color: var(--color-primary);
+    box-shadow: 0 4px 12px rgb(0 0 0 / 0.08);
+  }
+
+  &--next {
+    margin-left: auto;
+    text-align: right;
+  }
+}
+
+.nav-btn__label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-ink-muted);
+}
+
+.nav-btn__name {
+  font-weight: 600;
+  color: var(--color-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width: 600px) {
+  .project-detail__header {
+    padding: 1.25rem;
+  }
+
+  .project-detail__actions {
+    width: 100%;
+
+    > * {
+      flex: 1;
+    }
+  }
+
+  .nav-btn {
+    max-width: 100%;
+    flex: 1;
+  }
+}
+/* ---------- Badges de statut + archivé ---------- */
+.project-detail__badges {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.archived-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  color: var(--color-ink-muted);
+  background: color-mix(in srgb, var(--color-ink-muted) 15%, transparent);
 }

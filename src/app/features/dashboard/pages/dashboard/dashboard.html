@@ -1,0 +1,110 @@
+<h1>Tableau de bord</h1>
+<p class="subtitle">Vue d'ensemble de ton activité TaskFlow </p>
+
+@if (loading()) {
+  <p class="empty-state">Chargement des statistiques...</p>
+} @else {
+  <!-- KPIs -->
+  <section class="kpis">
+    @for (kpi of kpis(); track kpi.label) {
+      <article [class]="'kpi kpi--' + kpi.tone">
+        <span class="kpi__label">{{ kpi.label }}</span>
+        <span class="kpi__value">{{ kpi.value }}</span>
+        @if (kpi.hint) {
+          <span class="kpi__hint">{{ kpi.hint }}</span>
+        }
+      </article>
+    }
+  </section>
+
+  <!-- Grille principale -->
+  <section class="grid">
+    <!-- Donut statuts -->
+    <article class="card card--donut">
+      <h2>Répartition par statut</h2>
+      <div class="donut-wrapper">
+        <div class="donut" [style.background]="statusDonutGradient()">
+          <div class="donut__center">
+            <span class="donut__value">{{ totalTasks() }}</span>
+            <span class="donut__label">tâches</span>
+          </div>
+        </div>
+        <ul class="legend">
+          @for (item of statusLegend(); track item.status) {
+            <li [class]="'legend__item legend__item--' + item.status">
+              <span class="legend__dot"></span>
+              <span class="legend__label">{{ item.label }}</span>
+              <span class="legend__count">{{ item.count }}</span>
+              <span class="legend__percent">{{ item.percent }}%</span>
+            </li>
+          }
+        </ul>
+      </div>
+    </article>
+
+    <!-- Barres priorités -->
+    <article class="card">
+      <h2>Répartition par priorité</h2>
+      <ul class="bars">
+        @for (bar of priorityBars(); track bar.priority) {
+          <li class="bars__item">
+            <div class="bars__head">
+              <span [class]="'bars__label bars__label--' + bar.priority">{{ bar.label }}</span>
+              <span class="bars__count">{{ bar.count }}</span>
+            </div>
+            <div class="bars__track">
+              <div
+                [class]="'bars__fill bars__fill--' + bar.priority"
+                [style.width.%]="bar.percent"
+              ></div>
+            </div>
+          </li>
+        }
+      </ul>
+    </article>
+  </section>
+
+  <!-- Avancement par projet -->
+  <section class="card">
+    <h2>Avancement par projet</h2>
+    @if (projectProgress().length === 0) {
+      <p class="empty-state">Aucun projet pour l'instant.</p>
+    } @else {
+      <ul class="progress-list">
+        @for (p of projectProgress(); track p.id) {
+          <li class="progress-list__item">
+            <a [routerLink]="['/projects', p.id]" class="progress-list__name">{{ p.name }}</a>
+            <div class="progress-list__bar">
+              <div class="progress-list__fill" [style.width.%]="p.percent"></div>
+            </div>
+            <span class="progress-list__meta">
+              {{ p.done }}/{{ p.total }} — {{ p.percent }}%
+            </span>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+
+  <!-- Activité récente -->
+  <section class="card">
+    <h2>Activité récente</h2>
+    @if (recentTasks().length === 0) {
+      <p class="empty-state">Aucune tâche pour l'instant.</p>
+    } @else {
+      <ul class="activity">
+        @for (task of recentTasks(); track task.id) {
+          <li class="activity__item">
+            <a [routerLink]="['/projects', task.projectId, 'tasks', task.id]" class="activity__title">
+              {{ task.title }}
+            </a>
+            <span class="activity__project">{{ projectNameOf(task.projectId) }}</span>
+            <span [class]="'activity__status activity__status--' + task.status">
+              {{ statusLabels[task.status] }}
+            </span>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+}

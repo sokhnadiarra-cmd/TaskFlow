@@ -1,87 +1,177 @@
 :host {
   display: block;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
 }
 
-h1 {
-  margin-bottom: 0.25rem;
+/* ---------- En-tête de page ---------- */
+.kanban-page__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+
+  h1 {
+    margin: 0 0 0.25rem;
+    font-size: 1.7rem;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+  }
 }
 
 .subtitle {
+  margin: 0;
   color: var(--color-ink-muted);
-  margin-bottom: 0.75rem;
 }
 
+.kanban-page__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* ---------- Tableau ---------- */
 .kanban {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
-  margin-top: 1rem;
-
-  @media (max-width: 900px) {
-    grid-template-columns: 1fr;
-  }
+  margin-top: 1.25rem;
+  align-items: start;
 
   &__column {
-    background: color-mix(in srgb, var(--color-surface) 60%, var(--color-bg));
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius);
-    padding: 0.75rem;
+    --column-accent: var(--color-ink-muted);
+
     display: flex;
     flex-direction: column;
+    min-width: 0;
     min-height: 200px;
+    padding: 0.75rem;
+    background: color-mix(in srgb, var(--color-surface) 60%, var(--color-bg));
+    border: 1px solid var(--color-border);
+    border-top: 4px solid var(--column-accent);
+    border-radius: var(--radius);
+
+    &--a_faire  { --column-accent: var(--color-ink-muted); }
+    &--en_cours { --column-accent: var(--color-status-en_pause); }
+    &--termine  { --column-accent: var(--color-status-actif); }
   }
 
   &__header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 0.6rem;
+    margin-bottom: 0.75rem;
 
     h2 {
-      font-size: 0.95rem;
       margin: 0;
+      font-size: 0.9rem;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.05em;
       color: var(--color-ink-muted);
     }
   }
 
   &__count {
-    background: var(--color-primary);
-    color: white;
+    min-width: 1.6rem;
+    padding: 0.1rem 0.55rem;
+    text-align: center;
     font-size: 0.75rem;
     font-weight: 700;
-    padding: 0.1rem 0.55rem;
+    color: white;
+    background: var(--column-accent);
     border-radius: 999px;
   }
 
   &__dropzone {
     display: flex;
     flex-direction: column;
-    gap: 0.6rem;
     flex: 1;
-    min-height: 120px;
+    gap: 0.6rem;
+    min-height: 120px; // zone de dépôt même si la colonne est vide
   }
 
   &__item {
+    display: flex;
+    align-items: stretch;
+    min-width: 0;
+    background: var(--color-surface);
+    border-radius: var(--radius);
+  }
+
+  &__handle {
+    flex: 0 0 1.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    font-size: 1.1rem;
+    line-height: 1;
+    color: var(--color-ink-muted);
+    background: transparent;
+    border: none;
+    border-radius: var(--radius) 0 0 var(--radius);
     cursor: grab;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--color-primary);
+      background: color-mix(in srgb, var(--color-primary) 8%, transparent);
+      outline: none;
+    }
 
     &:active {
       cursor: grabbing;
     }
   }
 
+  &__card {
+    flex: 1;
+    min-width: 0;
+  }
+
   &__empty {
-    font-size: 0.8rem;
-    color: var(--color-ink-muted);
-    font-style: italic;
-    text-align: center;
-    padding: 1rem;
     margin: 0;
+    padding: 1rem;
+    text-align: center;
+    font-size: 0.8rem;
+    font-style: italic;
+    color: var(--color-ink-muted);
   }
 }
 
-/* Style CDK pendant le drag */
+/* ---------- Tablette et mobile : défilement horizontal ---------- */
+@media (max-width: 900px) {
+  .kanban {
+    display: flex;
+    gap: 0.75rem;
+    margin-inline: -1rem; // le défilement va jusqu'au bord de l'écran
+    padding: 0 1rem 1rem;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: 1rem;
+    -webkit-overflow-scrolling: touch;
+
+    &__column {
+      flex: 0 0 clamp(260px, 80vw, 340px);
+      scroll-snap-align: start;
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .kanban-page__actions {
+    width: 100%;
+
+    > * {
+      flex: 1;
+    }
+  }
+}
+
+/* ---------- Style CDK pendant le drag ---------- */
 .cdk-drag-preview {
   box-shadow: var(--shadow);
   border-radius: var(--radius);

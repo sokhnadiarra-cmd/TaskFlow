@@ -1,56 +1,88 @@
 @if (loading()) {
   <p class="empty-state">Chargement en cours...</p>
 } @else if (notFound()) {
-  <p class="empty-state">Ce projet n'existe pas</p>
+  <div class="empty-card">
+    <h2>Projet introuvable</h2>
+    <p>Ce projet n'existe pas ou a été supprimé.</p>
+    <a mat-flat-button color="primary" routerLink="/projects">Retour aux projets</a>
+  </div>
 } @else if (project(); as p) {
-  <h1>{{ p.name }}</h1>
-  <p>{{ p.description }}</p>
-  <span [class]="'status status--' + p.status">{{ p.status.replace('_', ' ') }}</span>
-  <p>{{ p.tasksCount }} tâche(s)</p>
+  <a class="back-link" routerLink="/projects">← Tous les projets</a>
+
+  <!-- En-tête du projet -->
+  <header class="project-detail__header">
+    <div class="project-detail__info">
+      <div class="project-detail__badges">
+        <span [class]="'status status--' + p.status">{{ p.status.replace('_', ' ') }}</span>
+        @if (p.archived) {
+          <span class="archived-badge">📦 Archivé</span>
+        }
+      </div>
+      <h1>{{ p.name }}</h1>
+      <p class="project-detail__description">{{ p.description }}</p>
+      <p class="project-detail__count">{{ tasks().length }} tâche(s)</p>
+    </div>
+
+    <div class="project-detail__actions">
+      <a mat-stroked-button [routerLink]="['/projects', p.id, 'edit']">Modifier</a>
+      <button
+        mat-stroked-button
+        [color]="p.archived ? 'primary' : 'warn'"
+        type="button"
+        (click)="onProjectArchiveToggle(p)"
+      >
+        {{ p.archived ? 'Désarchiver' : 'Archiver' }}
+      </button>
+    </div>
+  </header>
 
   <!-- Section tâches -->
   <section class="tasks-section">
     <header class="tasks-section__header">
-      <h2>Tâches ({{ tasks().length }})</h2>
-      <a mat-flat-button color="primary" [routerLink]="['/projects', p.id, 'tasks', 'new']">
-        Nouvelle tâche
-      </a>
+      <h2>Tâches <span class="tasks-section__badge">{{ tasks().length }}</span></h2>
+      <div class="tasks-section__actions">
+        <a mat-stroked-button [routerLink]="['/projects', p.id, 'tasks']">Vue Kanban</a>
+        <a mat-flat-button color="primary" [routerLink]="['/projects', p.id, 'tasks', 'new']">
+          Nouvelle tâche
+        </a>
+      </div>
     </header>
-    <header class="tasks-section__header">
-  <h2>Tâches ({{ tasks().length }})</h2>
-  <div class="tasks-section__actions">
-    <a mat-stroked-button [routerLink]="['/projects', p.id, 'tasks']">Vue Kanban</a>
-    <a mat-flat-button color="primary" [routerLink]="['/projects', p.id, 'tasks', 'new']">
-      Nouvelle tâche
-    </a>
-  </div>
-</header>
 
     @if (tasks().length === 0) {
-      <p class="empty-state">Aucune tâche pour ce projet.</p>
+      <div class="empty-card">
+        <p>Aucune tâche pour ce projet.</p>
+        <a mat-flat-button color="primary" [routerLink]="['/projects', p.id, 'tasks', 'new']">
+          Créer la première tâche
+        </a>
+      </div>
     } @else {
       <div class="task-grid">
         @for (task of tasks(); track task.id) {
-         <app-task-card
-  [task]="task"
-  [assignee]="assigneesByTask().get(task.id) ?? null"
-  (view)="onTaskView($event)"
-  (edit)="onTaskEdit($event)"
-  (remove)="onTaskDelete($event)"
-/>
+          <app-task-card
+            [task]="task"
+            [assignee]="assigneesByTask().get(task.id) ?? null"
+            (view)="onTaskOpen($event)"
+            (edit)="onTaskEdit($event)"
+            (remove)="onTaskDelete($event)"
+          />
         }
       </div>
     }
   </section>
 
+  <!-- Navigation entre projets -->
   @if (previousProject() || nextProject()) {
     <nav class="project-navigation">
       @if (previousProject(); as prev) {
-        <a [routerLink]="['/projects', prev.id]" class="nav-btn nav-btn--prev">Précédent</a>
+        <a [routerLink]="['/projects', prev.id]" class="nav-btn nav-btn--prev">
+          <span class="nav-btn__label">← Précédent</span>
+          <span class="nav-btn__name">{{ prev.name }}</span>
+        </a>
       }
       @if (nextProject(); as next) {
         <a [routerLink]="['/projects', next.id]" class="nav-btn nav-btn--next">
-          Suivant ({{ next.name }})
+          <span class="nav-btn__label">Suivant →</span>
+          <span class="nav-btn__name">{{ next.name }}</span>
         </a>
       }
     </nav>

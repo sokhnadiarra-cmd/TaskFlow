@@ -31,26 +31,32 @@ export class Login {
 
   protected readonly loginFailed = signal(false);
   protected readonly justRegistered = signal(false);
+  protected readonly passwordReset = signal(false);
 
   constructor() {
     const params = this.route.snapshot.queryParamMap;
+
     if (params.get('registered') === '1') {
       this.justRegistered.set(true);
       const email = params.get('email');
       if (email) this.form.controls.email.setValue(email);
     }
+
+    if (params.get('reset') === '1') {
+      this.passwordReset.set(true);
+    }
   }
 
- onSubmit(): void {
-  if (this.form.invalid) {
-    this.form.markAllAsTouched();
-    return;
-  }
+  onSubmit(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
 
-  const { email, password } = this.form.getRawValue();
-  this.authService.login(email, password).subscribe({
-    next: () => this.router.navigate(['/projects']),   // ← ici
-    error: () => this.loginFailed.set(true),
-  });
-}
+    const { email, password } = this.form.getRawValue();
+    this.authService.login(email, password).subscribe({
+      next: () => this.router.navigate(['/projects']),
+      error: () => this.loginFailed.set(true),
+    });
+  }
 }

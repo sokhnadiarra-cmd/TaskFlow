@@ -3,6 +3,7 @@ import { Register } from './register';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
+import { EmailVerificationService } from '../../../projects/services/email-verification.service';
 
 describe('Register', () => {
   let component: Register;
@@ -11,7 +12,12 @@ describe('Register', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Register],
-      providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        EmailVerificationService,   // ← AJOUT
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Register);

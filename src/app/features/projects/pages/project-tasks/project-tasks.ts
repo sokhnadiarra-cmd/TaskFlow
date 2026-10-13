@@ -7,6 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import {
   CdkDrag,
   CdkDragDrop,
+  CdkDragHandle,
   CdkDropList,
   moveItemInArray,
   transferArrayItem,
@@ -46,11 +47,11 @@ export class ProjectTasks {
   private usersService = inject(UsersService);
   private projectService = inject(ProjetsService);
   private route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
+  private router = inject(Router);
   private dialog = inject(MatDialog);
 
-
-  private readonly projectId = toSignal(
+  // ⬇️ protected (et non private) car utilisé dans le template
+  protected readonly projectId = toSignal(
     this.route.paramMap.pipe(map((p) => Number(p.get('id')!))),
     { requireSync: true },
   );
@@ -109,14 +110,16 @@ export class ProjectTasks {
     return map;
   });
 
+  protected readonly connectedLists = computed(() =>
+    TASK_STATUSES.map((s) => `col-${s}`),
+  );
+
   protected onFiltersChange(value: TaskFiltersValue): void {
     this.filters.set(value);
   }
 
   /** Drag & drop : gère les deux cas (réordonner ou changer de colonne). */
   protected onDrop(event: CdkDragDrop<Task[]>, targetStatus: TaskStatus): void {
-    const sourceStatus = event.previousContainer.data[event.previousIndex].status;
-
     // 1. Même colonne → réordonner visuellement (pas de PUT)
     if (event.previousContainer === event.container) {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
@@ -137,32 +140,29 @@ export class ProjectTasks {
     this.tasksService.moveTask(task.id, targetStatus).subscribe({
       error: () => console.error('Échec déplacement', task.id),
     });
-
-    // Source inutilisée mais on la garde pour debug si besoin
-    void sourceStatus;
   }
 
   protected onTaskEdit(task: Task): void {
     this.router.navigate(['/projects', task.projectId, 'tasks', task.id, 'edit']);
   }
+
   protected onTaskDelete(task: Task): void {
-  const ref = this.dialog.open(ConfirmDialog, {
-    width: '400px',
-    data: {
-      title: 'Supprimer la tâche',
-      message: `Veux-tu vraiment supprimer « ${task.title} » ?`,
-      confirmLabel: 'Supprimer',
-    },
-  });
-  ref.afterClosed().subscribe((ok) => {
-    if (!ok) return;
-    this.tasksService.deleteTask(task.id).subscribe();
-  });
-}
-protected onTaskView(task: Task): void {
-  this.router.navigate(['/projects', task.projectId, 'tasks', task.id]);
-}
-protected readonly connectedLists = computed(() =>
-  TASK_STATUSES.map((s) => `col-${s}`),
-);
+    const ref = this.dialog.open(ConfirmDialog, {
+      width: '400px',
+      data: {
+        title: 'Supprimer la tâche',
+        message: `Veux-tu vraiment supprimer « ${task.title} » ?`,
+        confirmLabel: 'Supprimer',
+      },
+    });
+
+    ref.afterClosed().subscribe((ok) => {
+      if (!ok) return;
+      this.tasksService.deleteTask(task.id).subscribe();
+    });
+  }
+
+  protected onTaskView(task: Task): void {
+    this.router.navigate(['/projects', task.projectId, 'tasks', task.id]);
+  }
 }

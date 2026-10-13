@@ -1,22 +1,205 @@
-.projects-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 1rem;
+/* ---------- Filtre par statut ---------- */
+.status-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
 
-  a {
-    text-decoration: none;
-    color: inherit;
+.chip {
+  --chip-color: var(--color-primary);
+
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.9rem;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--chip-color);
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--chip-color) 40%, transparent);
+  border-radius: 999px;
+  transition: background 0.15s ease, color 0.15s ease;
+
+  &--actif    { --chip-color: var(--color-status-actif); }
+  &--en_pause { --chip-color: var(--color-status-en_pause); }
+  &--termine  { --chip-color: var(--color-status-termine); }
+
+  &:hover {
+    background: color-mix(in srgb, var(--chip-color) 10%, transparent);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--chip-color);
+    outline-offset: 2px;
+  }
+
+  &--selected {
+    color: white;
+    background: var(--chip-color);
+
+    &:hover {
+      background: var(--chip-color);
+    }
+  }
+
+  &__count {
+    min-width: 1.4rem;
+    padding: 0.05rem 0.45rem;
+    text-align: center;
+    font-size: 0.72rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, currentColor 18%, transparent);
   }
 }
 
-.empty-state {
-  text-align: center;
-  padding: 2rem;
-  color: var(--color-ink-muted);
+/* ---------- Kanban ---------- */
+.kanban {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: start;
+
+  &--single {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  &__column {
+    --column-accent: var(--color-ink-muted);
+
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 200px;
+    padding: 0.75rem;
+    background: color-mix(in srgb, var(--color-surface) 60%, var(--color-bg));
+    border: 1px solid var(--color-border);
+    border-top: 4px solid var(--column-accent);
+    border-radius: var(--radius);
+
+    &--actif    { --column-accent: var(--color-status-actif); }
+    &--en_pause { --column-accent: var(--color-status-en_pause); }
+    &--termine  { --column-accent: var(--color-status-termine); }
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+
+    h2 {
+      margin: 0;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--color-ink-muted);
+    }
+  }
+
+  &__count {
+    min-width: 1.6rem;
+    padding: 0.1rem 0.55rem;
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: white;
+    background: var(--column-accent);
+    border-radius: 999px;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  &__link {
+    display: block;
+    min-width: 0;
+    text-decoration: none;
+    color: inherit;
+    border-radius: var(--radius);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+    &:hover,
+    &:focus-visible {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgb(0 0 0 / 0.1);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    app-project-card {
+      display: block;
+    }
+  }
+
+  &__empty {
+    margin: 0;
+    padding: 1rem;
+    text-align: center;
+    font-size: 0.8rem;
+    font-style: italic;
+    color: var(--color-ink-muted);
+  }
 }
 
-.config-debug {
-  font-size: 0.78rem;
-  color: var(--color-ink-muted);
-  font-style: italic;
+/* ---------- Tablette et mobile : défilement horizontal ---------- */
+@media (max-width: 900px) {
+  .kanban:not(.kanban--single) {
+    display: flex;
+    gap: 0.75rem;
+    margin-inline: -1rem;
+    padding: 0 1rem 1rem;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: 1rem;
+    -webkit-overflow-scrolling: touch;
+
+    .kanban__column {
+      flex: 0 0 clamp(260px, 80vw, 340px);
+      scroll-snap-align: start;
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .project-list__header {
+    padding: 1.1rem;
+
+    h1 {
+      font-size: 1.5rem;
+    }
+
+    > a {
+      width: 100%;
+    }
+  }
+}
+.project-list_actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+
+  > * {
+    flex: 1;
+    min-width: 0;
+  }
+}
+.status-filter {
+  margin-top: 1.5rem; // espace entre le bouton et les puces
+}
+/* ---------- Actions du header (toggle archivés + nouveau) ---------- */
+.project-list__actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
 }

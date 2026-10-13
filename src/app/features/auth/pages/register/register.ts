@@ -4,8 +4,14 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
+
 import { AuthService } from '../../../../core/auth/auth';
+import { EmailVerificationService } from '../../../projects/services/email-verification.service';
 import { passwordsMatchValidator } from '../../../projects/validators/passwords-match.validators';
+import { strictEmailValidator } from '../../../projects/validators/email.validators';
+import { uniqueEmailValidator } from '../../../projects/validators/unique-email.validators';
+import { emailExistsValidator } from '../../../projects/validators/email-exists.validators';
+import { trustedEmailDomainValidator } from '../../../projects/validators/email-domain.validators';
 
 @Component({
   imports: [
@@ -22,12 +28,25 @@ import { passwordsMatchValidator } from '../../../projects/validators/passwords-
 export class Register {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
+  private emailVerificationService = inject(EmailVerificationService);
   private router = inject(Router);
 
   protected readonly form = this.fb.nonNullable.group(
     {
       name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(60)]],
-      email: ['', [Validators.required, Validators.email]],
+      email: ['', {
+        validators: [
+          Validators.required,
+          Validators.email,
+          strictEmailValidator,
+          trustedEmailDomainValidator,   // ← whitelist gmail/outlook/yahoo…
+        ],
+        asyncValidators: [
+          uniqueEmailValidator(this.authService),               // unicité en base
+          emailExistsValidator(this.emailVerificationService),   // existence réelle (MX)
+        ],
+        updateOn: 'blur' as const,
+      }],
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required]],
     },
@@ -52,8 +71,6 @@ export class Register {
     const { name, email, password } = this.form.getRawValue();
 
     this.authService.register({ name, email, password }).subscribe({
-      // Pas de session créée : on redirige vers /login pour que
-      // l'utilisateur s'authentifie avec ses identifiants.
       next: () => this.router.navigate(['/login'], {
         queryParams: { registered: '1', email },
       }),

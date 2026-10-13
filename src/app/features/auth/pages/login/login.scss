@@ -43,3 +43,17 @@
 mat-form-field {
   width: 100%;
 }
+.forgot-link {
+  text-align: right;
+  font-size: 0.82rem;
+  margin: -0.25rem 0 0.5rem;
+
+  a {
+    text-decoration: none;
+    color: var(--color-primary);
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
