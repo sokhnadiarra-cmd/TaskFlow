@@ -9,22 +9,45 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Récupérer le code
-        uses: actions/checkout@v4
-
-      - name: Installer Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
+      - run: npm ci
+      - run: npx ng test --watch=false
+      - run: npx ng build
 
-      - name: Installer les dépendances
-        run: npm ci
-
-      - name: Lancer les tests unitaires
-        run: npx ng test --watch=false
-
-      - name: Vérifier que l'application compile
-        run: npx ng build
+  deploy:
+    # Ne se lance que sur main, et seulement si les tests ont réussi
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx ng build --base-href /TaskFlow/
+      - name: Préparer le site
+        id: prep
+        run: |
+          DIR=$(ls -d dist/*/browser)
+          cp "$DIR/index.html" "$DIR/404.html"
+          echo "path=$DIR" >> "$GITHUB_OUTPUT"
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ steps.prep.outputs.path }}
+      - id: deployment
+        uses: actions/deploy-pages@v4
